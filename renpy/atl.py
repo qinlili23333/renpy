@@ -918,7 +918,6 @@ class Block(Statement):
 class RawMultipurpose(RawStatement):
 
     warp_function = None
-    seen_properties = frozenset()
 
     def __init__(self, loc):
 
@@ -931,6 +930,27 @@ class RawMultipurpose(RawStatement):
         self.splines = [ ]
         self.revolution = None
         self.circles = "0"
+        self.seen_properties = set()
+
+    @property
+    def is_properties(self):
+        if not self.properties:
+            return False
+        if self.warper is not None:
+            return False
+        if self.warp_function is not None:
+            return False
+
+        # normally not necessary - properties should not be empty in that case
+        # if self.expressions:
+        #     return False
+
+        if self.splines:
+            return False
+        if self.revolution is not None:
+            return False
+
+        return True
 
     def add_warper(self, name, duration, warp_function):
         self.warper = name
@@ -940,7 +960,7 @@ class RawMultipurpose(RawStatement):
     def add_property(self, name, exprs):
         if name in self.seen_properties:
             return False
-        self.seen_properties |= {name}
+        self.seen_properties.add(name)
         self.properties.append((name, exprs))
 
     def add_expression(self, expr, with_clause):
@@ -2028,6 +2048,12 @@ def parse_atl(l):
 
         elif isinstance(old, RawOn) and isinstance(new, RawOn):
             old.handlers.update(new.handlers)
+            continue
+
+        elif isinstance(old, RawMultipurpose) and old.is_properties and isinstance(new, RawMultipurpose) and new.is_properties:
+            for n, e in new.properties:
+                if old.add_property(n, e) is not None:
+                    ll.error("property {!r} is given a value more than once".format(n))
             continue
 
         # None is a pause statement, which gets skipped, but also
