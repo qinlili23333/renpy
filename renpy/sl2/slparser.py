@@ -117,6 +117,35 @@ class PrefixStyle(object):
             parser.add(self)
 
 
+incompatible_prefs = {"alignaround" : {"xaround", "yaround", "xanchoraround", "yanchoraround"},
+                      "align" : {"xanchor", "yanchor", "xpos", "ypos"},
+                      "anchor" : {"xanchor", "yanchor"},
+                      "angle" : {"xpos", "ypos"},
+                      "around" : {"xaround", "yaround", "xanchoraround", "yanchoraround"},
+                      "offset" : {"xoffset", "yoffset"},
+                      "pos" : {"xpos", "ypos"},
+                      "radius" : {"xpos", "ypos"},
+                      "size" : {"xsize", "ysize"},
+                      "xalign" : {"xpos", "xanchor"},
+                      "xcenter" : {"xpos", "xanchor"},
+                      "xycenter" : {"xpos", "ypos", "xanchor", "yanchor"},
+                      "xysize" : {"xsize", "ysize"},
+                      "yalign" : {"ypos", "yanchor"},
+                      "ycenter" : {"ypos", "yanchor"},
+                      }
+def check_incompatible_prefs(new, olds):
+    """
+    Takes a property and a set of already-seen properties, and checks
+    to see if the new is incompatible with any of the old ones.
+    """
+    newly_set = incompatible_prefs.get(new, set()) | {new}
+
+    for old in olds:
+        if newly_set.intersection(incompatible_prefs.get(old, (old,))):
+            return old
+
+    return False
+
 class Parser(object):
 
     # The number of children this statement takes, out of 0, 1, or "many".
@@ -240,7 +269,7 @@ class Parser(object):
 
             if can_tag and name == "tag":
                 if target.tag is not None:
-                    l.error('keyword argument %r appears more than once in a %s statement.' % (name, self.name))
+                    l.error('the tag keyword argument appears more than once in a %s statement.' % (self.name,))
 
                 target.tag = l.require(l.word)
                 l.expect_noblock(name)
@@ -259,6 +288,9 @@ class Parser(object):
 
             if name in seen_keywords:
                 l.error('keyword argument %r appears more than once in a %s statement.' % (name, self.name))
+            incompref = check_incompatible_prefs(name, seen_keywords)
+            if incompref:
+                l.error('keyword argument %r is incompatible with %r.' % (name, incompref))
 
             seen_keywords.add(name)
 
