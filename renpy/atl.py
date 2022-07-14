@@ -918,6 +918,7 @@ class Block(Statement):
 class RawMultipurpose(RawStatement):
 
     warp_function = None
+    seen_properties = frozenset()
 
     def __init__(self, loc):
 
@@ -937,6 +938,9 @@ class RawMultipurpose(RawStatement):
         self.warp_function = warp_function
 
     def add_property(self, name, exprs):
+        if name in self.seen_properties:
+            return False
+        self.seen_properties |= {name}
         self.properties.append((name, exprs))
 
     def add_expression(self, expr, with_clause):
@@ -1903,6 +1907,8 @@ def parse_atl(l):
             ll = l
             has_block = False
 
+            seen_properties = set()
+
             # Now, look for properties and simple_expressions.
             while True:
 
@@ -1960,7 +1966,11 @@ def parse_atl(l):
                         knots.append(expr)
                         rm.add_spline(prop, knots)
                     else:
-                        rm.add_property(prop, expr)
+                        if prop in seen_properties:
+                            ll.error("property {!r} is given a value more than once".format(prop))
+                        seen_properties.add(prop)
+                        if rm.add_property(prop, expr) is not None:
+                            ll.error("property {!r} is given a value more than once".format(prop))
 
                     continue
 
