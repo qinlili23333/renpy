@@ -1927,8 +1927,6 @@ def parse_atl(l):
             ll = l
             has_block = False
 
-            seen_properties = set()
-
             # Now, look for properties and simple_expressions.
             while True:
 
@@ -1986,9 +1984,6 @@ def parse_atl(l):
                         knots.append(expr)
                         rm.add_spline(prop, knots)
                     else:
-                        if prop in seen_properties:
-                            ll.error("property {!r} is given a value more than once".format(prop))
-                        seen_properties.add(prop)
                         if rm.add_property(prop, expr) is not None:
                             ll.error("property {!r} is given a value more than once".format(prop))
 
@@ -2019,7 +2014,13 @@ def parse_atl(l):
             if not has_block:
                 l.expect_noblock('ATL')
 
-            statements.append(rm)
+            # maybe convert it to a specific statement type, RawProperties ? if/when applicable.
+            if statements and isinstance(statements[-1], RawMultipurpose) and statements[-1].is_properties:
+                for n, e in rm.properties:
+                    if statements[-1].add_property(n, e) is not None:
+                        ll.error("property {!r} is given a value more than once".format(n))
+            else:
+                statements.append(rm)
 
         if l.eol():
             l.advance()
@@ -2048,12 +2049,6 @@ def parse_atl(l):
 
         elif isinstance(old, RawOn) and isinstance(new, RawOn):
             old.handlers.update(new.handlers)
-            continue
-
-        elif isinstance(old, RawMultipurpose) and old.is_properties and isinstance(new, RawMultipurpose) and new.is_properties:
-            for n, e in new.properties:
-                if old.add_property(n, e) is not None:
-                    ll.error("property {!r} is given a value more than once".format(n))
             continue
 
         # None is a pause statement, which gets skipped, but also
