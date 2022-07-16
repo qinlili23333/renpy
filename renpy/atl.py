@@ -2040,7 +2040,7 @@ def parse_atl(l):
                 l.expect_noblock('ATL')
 
             # maybe convert it to a specific statement type, RawProperties ? if/when applicable.
-            if statements and isinstance(statements[-1], RawMultipurpose) and statements[-1].is_properties:
+            if rm.is_properties and statements and isinstance(statements[-1], RawMultipurpose) and statements[-1].is_properties:
                 for n, e in rm.properties:
                     addprop_rv = statements[-1].add_property(n, e)
                     if addprop_rv == n:
