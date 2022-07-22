@@ -948,26 +948,6 @@ class RawMultipurpose(RawStatement):
         self.revolution = None
         self.circles = "0"
 
-    @property
-    def is_properties(self):
-        if not self.properties:
-            return False
-        if self.warper is not None:
-            return False
-        if self.warp_function is not None:
-            return False
-
-        # normally not necessary - properties should not be empty in that case
-        # if self.expressions:
-        #     return False
-
-        if self.splines:
-            return False
-        if self.revolution is not None:
-            return False
-
-        return True
-
     def add_warper(self, name, duration, warp_function):
         self.warper = name
         self.duration = duration
@@ -2039,16 +2019,7 @@ def parse_atl(l):
             if not has_block:
                 l.expect_noblock('ATL')
 
-            # maybe convert it to a specific statement type, RawProperties ? if/when applicable.
-            if rm.is_properties and statements and isinstance(statements[-1], RawMultipurpose) and statements[-1].is_properties:
-                for n, e in rm.properties:
-                    addprop_rv = statements[-1].add_property(n, e)
-                    if addprop_rv == n:
-                        ll.error("property {!r} is given a value more than once".format(n))
-                    elif addprop_rv:
-                        ll.error("properties {!r} and {!r} conflict with each other".format(n, addprop_rv))
-            else:
-                statements.append(rm)
+            statements.append(rm)
 
         if l.eol():
             l.advance()
