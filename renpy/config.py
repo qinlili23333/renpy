@@ -1267,6 +1267,9 @@ alternate_unelide_path = None
 # The range, in decibels, of the volume mixers.
 volume_db_range = 60
 
+# Are parsing errors raised when conflicting preferences are set simultaneously ?
+check_conflicting_prefs = False
+
 
 del os
 del collections
