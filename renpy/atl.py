@@ -955,18 +955,20 @@ class RawMultipurpose(RawStatement):
 
     def add_property(self, name, exprs):
         """
-        Checks if the property is compatible with any previously included.
-        Returns the previously-set property, if any.
-        Otherwise, sets the property and returns None.
+        Checks if the property is compatible with any previously included, and
+        sets it.
+        Either returns the previously-set property, if any, or None.
         """
         newly_set = incompatible_props.get(name, set()) | {name}
 
         for old, _e in self.properties:
             if newly_set.intersection(incompatible_props.get(old, (old,))):
-                return old
+                break
+        else:
+            old = None
 
         self.properties.append((name, exprs))
-        return None
+        return old
 
     def add_expression(self, expr, with_clause):
         self.expressions.append((expr, with_clause))
