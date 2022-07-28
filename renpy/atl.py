@@ -956,7 +956,8 @@ class RawMultipurpose(RawStatement):
     def add_property(self, name, exprs):
         """
         Checks if the property is compatible with any previously included.
-        Returns the previously-set property, if any, or None if all is right.
+        Returns the previously-set property, if any.
+        Otherwise, sets the property and returns None.
         """
         newly_set = incompatible_props.get(name, set()) | {name}
 
