@@ -902,7 +902,7 @@ class Block(Statement):
     def visit(self):
         return [ j for i in self.statements for j in i.visit() ]
 
-incompatible_prefs = {"alignaround" : {"xaround", "yaround", "xanchoraround", "yanchoraround"},
+incompatible_props = {"alignaround" : {"xaround", "yaround", "xanchoraround", "yanchoraround"},
                       "align" : {"xanchor", "yanchor", "xpos", "ypos"},
                       "anchor" : {"xanchor", "yanchor"},
                       "angle" : {"xpos", "ypos"},
@@ -958,10 +958,10 @@ class RawMultipurpose(RawStatement):
         Checks if the property is compatible with any previously included.
         Returns the previously-set property, if any, or None if all is right.
         """
-        newly_set = incompatible_prefs.get(name, set()) | {name}
+        newly_set = incompatible_props.get(name, set()) | {name}
 
         for old, _e in self.properties:
-            if newly_set.intersection(incompatible_prefs.get(old, (old,))):
+            if newly_set.intersection(incompatible_props.get(old, (old,))):
                 return old
 
         self.properties.append((name, exprs))
