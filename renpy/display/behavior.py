@@ -519,9 +519,10 @@ class PauseBehavior(renpy.display.layout.Null):
 
     def event(self, ev, x, y, st):
 
-        if ev.type == renpy.display.core.TIMEEVENT and ev.modal:
-            renpy.game.interface.timeout(max(self.delay - st, 0))
-            return
+        if ev.type == renpy.display.core.TIMEEVENT:
+            if ev.modal:
+                renpy.game.interface.timeout(max(self.delay - st, 0))
+                return
 
         if st >= self.delay:
 
@@ -643,6 +644,9 @@ class SayBehavior(renpy.display.layout.Null):
                     max_time = max(max_time, t.get_time())
 
                 afm_delay += max_time
+
+            if ev.type == renpy.display.core.TIMEEVENT and ev.modal:
+                return None
 
             if st > afm_delay:
                 if renpy.config.afm_callback:
@@ -2445,7 +2449,7 @@ class MouseArea(renpy.display.core.Displayable):
         if renpy.display.focus.pending_focus_type == 'keyboard':
             is_hovered = False
 
-        if (ev.type == renpy.display.core.TIMEEVENT) and ev.modal:
+        elif (ev.type == renpy.display.core.TIMEEVENT) and ev.modal:
             is_hovered = False
 
         else:
