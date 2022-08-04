@@ -36,6 +36,12 @@ of these is 0.0 or 1.0, it can be left unchanged.
 8.0.2 / 7.5.2
 -------------
 
+A modal screen now blocks the ``pause`` statement and :func:`renpy.pause``
+function from timing out. This was the indended behavior, but didn't work
+in some cases. This change can be reverted with::
+
+    define config.modal_blocks_pause = False
+
 The default games no longer filter Ruby/Furigana text tags from the history.
 This requires the line in screens.rpy that sets :var:`gui.history_allow_tags`
 to be changed to::
@@ -141,7 +147,7 @@ Vpgrids cannot be overfull anymore, and can only be underfull if the
 ``allow_underfull`` property is passed, or if :var:`config.allow_underfull_grids` is
 set to True.
 
-The way :ref:`layered images <layered-images>` place their children, and how children
+The way :doc:`layered images <layeredimage>` place their children, and how children
 with variable size are sized, has changed. Instead of taking into account the available
 area in the context the layeredimage is displayed, it now presumes the size of the
 screen is available, unless an explicit size has been given with :tpref:`xsize`,

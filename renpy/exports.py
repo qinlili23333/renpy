@@ -1829,9 +1829,10 @@ def reload_script():
 
     session = renpy.session
 
-    session.pop("_reload_screen", None)
-    session.pop("_reload_screen_args", None)
-    session.pop("_reload_screen_kwargs", None)
+    # If one of these variables is already in session, we're recovering from
+    # a failed reload.
+    if ("_reload_screen" in session) or ("_main_menu_screen" in session):
+        utter_restart()
 
     if not renpy.store.main_menu:
 
@@ -2707,12 +2708,24 @@ def scry():
     Returns the scry object for the current statement.
 
     The scry object tells Ren'Py about things that must be true in the
-    future of the current statement. Right now, the scry object has one
-    field:
+    future of the current statement. Right now, the scry object has the
+    following fields:
 
     ``nvl_clear``
         Is true if an ``nvl clear`` statement will execute before the
         next interaction.
+
+    ``say``
+        Is true if an ``say`` statement will execute before the
+        next interaction.
+
+    ``menu_with_caption``
+        Is true if a ``menu`` statement with a caption will execute
+        before the next interaction.
+
+    ``who``
+        If a ``say`` or ``menu-with-caption`` statement will execute
+        before the next interaction, this is the character object it will use.
     """
 
     name = renpy.game.context().current

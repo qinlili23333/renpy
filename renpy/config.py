@@ -1264,6 +1264,9 @@ skip_during_text = False
 # the style inspector.)
 alternate_unelide_path = None
 
+# Should modal block pause?
+modal_blocks_pause = True
+
 # The range, in decibels, of the volume mixers.
 volume_db_range = 60
 
