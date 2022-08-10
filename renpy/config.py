@@ -1273,6 +1273,8 @@ volume_db_range = 60
 # Are parsing errors raised when conflicting properties are set simultaneously ?
 check_conflicting_properties = False
 
+# Autosave callback.
+autosave_callback = None
 
 del os
 del collections
