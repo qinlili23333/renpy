@@ -248,6 +248,8 @@ def scan(name, o, prefix="", inclass=False):
 
             if m.group(2):
                 doc_type = m.group(2)
+            elif section.endswith("action"):
+                doc_type = "function"
 
             continue
 
